@@ -22,13 +22,20 @@ final class PickerController {
     private var localMonitor: Any?
 
     @discardableResult
-    func present(for event: SnapEvent, thumbnails: Bool, items: [WindowCandidate]? = nil) -> Bool {
+    func present(
+        for event: SnapEvent,
+        thumbnails: Bool,
+        items: [WindowCandidate]? = nil,
+        recentProcessIDs: [pid_t] = []
+    ) -> Bool {
         dismiss(silently: true)
 
         let excluded = ScreenGeometry.accessibility(fromAppKit: event.frame)
         let candidates = items ?? WindowList.candidates(
             excludingID: event.windowID,
-            excludingFrame: event.windowID == nil ? excluded : nil
+            excludingPID: event.pid,
+            excludingFrame: event.windowID == nil ? excluded : nil,
+            recentProcessIDs: recentProcessIDs
         )
         guard !candidates.isEmpty else { return false }
 
