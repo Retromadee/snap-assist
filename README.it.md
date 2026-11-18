@@ -14,6 +14,12 @@ Funziona con qualsiasi metodo di snap: **Rectangle**, Magnet, le scorciatoie da 
 
 - macOS 15 o successivo
 
+## Compilazione e installazione
+
+Dalla cartella del repository esegui `./scripts/build-app.sh release`. Crea `dist/SnapAssist.app` e il programma di installazione `SnapAssist.dmg`: apri il DMG e trascina **SnapAssist.app** sull'icona **Applications** al suo interno.
+
+Per copiare anche l'app in `~/Applications`, esegui `./scripts/build-app.sh release install`.
+
 ## Lingua
 
 L'interfaccia segue la lingua di macOS: **italiano** se il sistema è in italiano, **inglese** per tutte le altre lingue. Non serve configurare nulla.
