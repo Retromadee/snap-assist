@@ -14,6 +14,12 @@ English | [Italiano](README.it.md)
 
 - macOS 15 or later
 
+## Build and install
+
+From the repository folder, run `./scripts/build-app.sh release`. This creates `dist/SnapAssist.app` and a drag-to-Applications installer at `SnapAssist.dmg`. Open the DMG and drag **SnapAssist.app** onto the **Applications** shortcut inside.
+
+To also copy the app into `~/Applications`, run `./scripts/build-app.sh release install`.
+
 ## Language
 
 The UI follows the macOS language: **English** by default, **Italian** when the system is in Italian. Nothing to configure.
