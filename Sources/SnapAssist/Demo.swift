@@ -80,7 +80,8 @@ enum Demo {
             frame: snapped,
             zone: .leftHalf,
             screen: screen,
-            target: target
+            target: target,
+            targetOccupied: false
         )
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
