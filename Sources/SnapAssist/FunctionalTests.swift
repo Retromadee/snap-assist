@@ -634,13 +634,14 @@ enum FunctionalTests {
 
         guard let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-              let window = AX.focusedWindow(pid: app.processIdentifier),
-              let frame = AX.frame(window) else {
+              let focused = AX.focusedWindowWithFrame(pid: app.processIdentifier) else {
             skip("lettura finestra in primo piano")
             skip("spostamento e ripristino finestra")
             return
         }
 
+        let window = focused.window
+        let frame = focused.frame
         expect(frame.width > 0 && frame.height > 0, "frame della finestra in primo piano")
         expect(AX.window(pid: app.processIdentifier, matching: frame) != nil, "finestra ritrovata per frame")
 

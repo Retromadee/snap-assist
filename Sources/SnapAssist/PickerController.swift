@@ -82,13 +82,7 @@ final class PickerController {
         panel.contentView = content
         panel.setFrame(frame, display: true)
         content.layoutSubtreeIfNeeded()
-        panel.alphaValue = 0
         panel.orderFrontRegardless()
-
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.12
-            panel.animator().alphaValue = 1
-        }
 
         self.panel = panel
         self.view = content
@@ -113,13 +107,8 @@ final class PickerController {
         self.panel = nil
         self.view = nil
 
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.1
-            panel.animator().alphaValue = 0
-        }, completionHandler: {
-            panel.orderOut(nil)
-            panel.contentView = nil
-        })
+        panel.orderOut(nil)
+        panel.contentView = nil
 
         if !silently { onDismiss?() }
 
