@@ -288,25 +288,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let pid = candidate.pid
         let cgFrame = candidate.frame
 
-        // Lasciamo al pannello il tempo di sparire prima di animare la finestra.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
-            guard let self else {
-                onFinished?()
-                return
-            }
-            guard let window = AX.window(pid: pid, matching: cgFrame) else {
-                NSSound.beep()
-                onFinished?()
-                return
-            }
-
-            AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanFalse)
-            AX.setFrame(window, targetFrame)
-            AX.activate(window)
-            NSRunningApplication(processIdentifier: pid)?.activate()
-            self.monitor.noteProgrammaticMove(pid: pid, window: window)
+        guard let window = AX.window(pid: pid, matching: cgFrame) else {
+            NSSound.beep()
             onFinished?()
+            return
         }
+
+        AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanFalse)
+        AX.setFrame(window, targetFrame)
+        AX.activate(window)
+        NSRunningApplication(processIdentifier: pid)?.activate()
+        monitor.noteProgrammaticMove(pid: pid, window: window)
+        onFinished?()
     }
 
     // MARK: - Permessi
