@@ -25,10 +25,10 @@ final class SnapMonitor {
 
     func start() {
         stop()
-        let timer = Timer(timeInterval: 0.12, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 0.06, repeats: true) { [weak self] _ in
             self?.tick()
         }
-        timer.tolerance = 0.02
+        timer.tolerance = 0.01
         RunLoop.main.add(timer, forMode: .common)
         self.timer = timer
     }
@@ -59,10 +59,9 @@ final class SnapMonitor {
         frameChangedAt = .distantPast
         guard let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-              let window = AX.focusedWindow(pid: app.processIdentifier),
-              let raw = AX.frame(window) else { return }
+              let focused = AX.focusedWindowWithFrame(pid: app.processIdentifier) else { return }
 
-        let rect = ScreenGeometry.appKit(fromAccessibility: raw)
+        let rect = ScreenGeometry.appKit(fromAccessibility: focused.frame)
         if let hit = SnapDetector.detect(rect) {
             lastSignature = Self.signature(pid: app.processIdentifier, rect: rect, zone: hit.zone)
         }
@@ -112,8 +111,9 @@ final class SnapMonitor {
         guard let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
               app.activationPolicy == .regular,
-              let window = AX.focusedWindow(pid: app.processIdentifier),
-              let raw = AX.frame(window) else { return }
+              let focused = AX.focusedWindowWithFrame(pid: app.processIdentifier) else { return }
+        let window = focused.window
+        let raw = focused.frame
 
         let rect = ScreenGeometry.appKit(fromAccessibility: raw)
 
