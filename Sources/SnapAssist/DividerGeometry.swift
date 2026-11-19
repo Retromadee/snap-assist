@@ -93,7 +93,7 @@ enum DividerGeometry {
             let centerX = (pair.firstRect.maxX + pair.secondRect.minX) / 2
             let bottom = max(pair.firstRect.minY, pair.secondRect.minY)
             let top = min(pair.firstRect.maxY, pair.secondRect.maxY)
-            let width: CGFloat = 12
+            let width: CGFloat = 14
             return NSRect(
                 x: centerX - width / 2,
                 y: bottom,
@@ -105,7 +105,7 @@ enum DividerGeometry {
             let centerY = (pair.firstRect.minY + pair.secondRect.maxY) / 2
             let left = max(pair.firstRect.minX, pair.secondRect.minX)
             let right = min(pair.firstRect.maxX, pair.secondRect.maxX)
-            let height: CGFloat = 12
+            let height: CGFloat = 14
             return NSRect(
                 x: left,
                 y: centerY - height / 2,

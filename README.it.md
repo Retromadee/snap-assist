@@ -53,7 +53,7 @@ Per avviarla al login: Impostazioni di Sistema → Generali → Elementi login �
 Quando due finestre occupano due aree adiacenti dello stesso schermo — metà, quarti o griglia — sul confine c'è una barra che permette di ridimensionarle insieme. È verticale tra finestre affiancate e orizzontale tra finestre impilate.
 
 - La barra **compare solo quando il puntatore è proprio sul confine** (entro circa 8 punti), quindi non salta fuori mentre usi una sidebar o passi vicino. Non resta sopra alle altre app e non copre il resto dello schermo.
-- Passandoci sopra appare una piccola maniglia con tre puntini; il cursore diventa orizzontale o verticale e, trascinando, entrambe le finestre si ridimensionano mantenendo i bordi esterni (minimo 120 punti ciascuna).
+- Passandoci sopra appare una piccola maniglia con tre puntini che segue il puntatore; puoi afferrare la barra **in qualsiasi punto della sua lunghezza**, non solo sulla maniglia. Il cursore diventa orizzontale o verticale e, trascinando, entrambe le finestre si ridimensionano mantenendo i bordi esterni (minimo 120 punti ciascuna).
 - Resta anche dopo aver spostato il confine (es. 60/40), finché le due finestre restano adiacenti.
 - Ogni schermo ha la sua barra, se ci sono coppie adiacenti su entrambi.
 - Si nasconde quando apri il pannello di scelta, quando le finestre non sono più adiacenti o quando un'altra finestra copre il confine.

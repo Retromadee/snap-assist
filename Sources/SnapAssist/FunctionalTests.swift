@@ -452,7 +452,7 @@ enum FunctionalTests {
             let rect = DividerGeometry.dividerRect(for: pair)
             expect(abs(rect.midX - base.midX) < 1, "barra al centro esatto")
             expect(abs(rect.height - base.height) < 1, "barra alta come le finestre")
-            expect(abs(rect.width - 12) < 0.5, "larghezza barra corretta")
+            expect(abs(rect.width - 14) < 0.5, "larghezza barra corretta")
 
             let nearPointer = NSPoint(x: base.midX + 4, y: base.midY)
             expect(

@@ -53,7 +53,7 @@ To launch at login: System Settings → General → Login Items → “+” and 
 When two windows occupy two adjacent areas of the same screen — halves, quarters or a grid — a divider sits on the boundary and lets you resize both at once. It is vertical between side-by-side windows and horizontal between stacked ones.
 
 - The bar **only appears when the pointer is right on the boundary** (within about 8 points), so it does not pop up while you use a sidebar or pass nearby. It does not float above other apps or cover the rest of the screen.
-- Hovering it shows a small handle with three dots; the cursor becomes horizontal or vertical and dragging resizes both windows while keeping their outer edges (120 points minimum each).
+- Hovering it shows a small handle with three dots that follows the pointer; you can grab the bar **anywhere along its length**, not only on the handle. The cursor becomes horizontal or vertical and dragging resizes both windows while keeping their outer edges (120 points minimum each).
 - It stays after you move the split (e.g. 60/40), as long as the two windows remain adjacent.
 - Each screen has its own bar when there are adjacent pairs on both.
 - It hides when the picker opens, when the windows are no longer adjacent, or when another window covers the boundary.

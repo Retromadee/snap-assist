@@ -21,6 +21,7 @@ final class DividerController {
     }
 
     private var timer: Timer?
+    private var spaceObserver: NSObjectProtocol?
     private var panel: DividerPanel?
     private var view: DividerView?
     private var displayedPair: DividerGeometry.Pair?
@@ -36,21 +37,56 @@ final class DividerController {
         timer.tolerance = 0.04
         RunLoop.main.add(timer, forMode: .common)
         self.timer = timer
+
+        spaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.spaceDidChange()
+        }
     }
 
     func stop() {
         timer?.invalidate()
         timer = nil
+        if let spaceObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(spaceObserver)
+        }
+        spaceObserver = nil
         hide()
         active = nil
         dragging = false
         suppressRevealRect = nil
     }
 
+    /// Il pannello va ricreato sullo Space attivo: un pannello creato su un
+    /// altro desktop non sempre viene mostrato dal sistema.
+    private func spaceDidChange() {
+        let wasDragging = dragging
+        dragging = false
+        active = nil
+        suppressRevealRect = nil
+        hide()
+        panel?.orderOut(nil)
+        panel = nil
+        view = nil
+        ZoneLog.write("divider: cambio Space, pannello ricreato")
+        if wasDragging { onDraggingChanged?(false) }
+    }
+
     private func tick() {
         guard isEnabled, !isSuspended else { return }
 
         if WindowList.isSystemOverlayActive() {
+            hide()
+            return
+        }
+
+        // Niente barra sopra le nostre finestre (Impostazioni, editor layout)
+        // né mentre il pannello di scelta è aperto.
+        let hasOwnWindow = NSApp.windows.contains { $0.isVisible && $0.level == .normal }
+        if NSApp.isActive || hasOwnWindow {
             hide()
             return
         }
@@ -123,10 +159,12 @@ final class DividerController {
         }
         view?.orientation = pair.orientation
         view?.pointerInside = pointerIsInside(mouse, rect: rect, orientation: pair.orientation)
+        view?.pointerLocation = NSPoint(x: mouse.x - rect.minX, y: mouse.y - rect.minY)
         view?.needsDisplay = true
 
-        if !panel.isVisible {
+        if !panel.isVisible || !panel.isOnActiveSpace {
             panel.orderFrontRegardless()
+            ZoneLog.write("divider: mostrato su Space attivo")
         }
     }
 
@@ -166,7 +204,7 @@ final class DividerController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
-        panel.level = .statusBar
+        panel.level = .floating
         panel.hidesOnDeactivate = false
         panel.isMovable = false
         panel.animationBehavior = .none
@@ -224,6 +262,10 @@ final class DividerController {
                     y: value - panel.frame.height / 2
                 ))
             }
+            view?.pointerLocation = NSPoint(
+                x: point.x - panel.frame.minX,
+                y: point.y - panel.frame.minY
+            )
         }
     }
 
@@ -256,6 +298,12 @@ final class DividerView: NSView {
 
     var pointerInside = false {
         didSet { if pointerInside != oldValue { needsDisplay = true } }
+    }
+
+    /// Posizione del puntatore nella vista: la maniglia la segue, così si
+    /// capisce che la barra si può trascinare in qualsiasi punto.
+    var pointerLocation: NSPoint? {
+        didSet { needsDisplay = true }
     }
 
     private var hovered = false {
@@ -295,9 +343,15 @@ final class DividerView: NSView {
         let grip: NSRect
         switch orientation {
         case .vertical:
-            grip = NSRect(x: bounds.midX - 3.5, y: bounds.midY - 28, width: 7, height: 56)
+            let lower = min(bounds.minY + 30, bounds.midY)
+            let upper = max(bounds.maxY - 30, bounds.midY)
+            let y = min(max(pointerLocation?.y ?? bounds.midY, lower), upper)
+            grip = NSRect(x: bounds.midX - 3.5, y: y - 28, width: 7, height: 56)
         case .horizontal:
-            grip = NSRect(x: bounds.midX - 28, y: bounds.midY - 3.5, width: 56, height: 7)
+            let lower = min(bounds.minX + 30, bounds.midX)
+            let upper = max(bounds.maxX - 30, bounds.midX)
+            let x = min(max(pointerLocation?.x ?? bounds.midX, lower), upper)
+            grip = NSRect(x: x - 28, y: bounds.midY - 3.5, width: 56, height: 7)
         }
 
         let path = NSBezierPath(roundedRect: grip, xRadius: 3.5, yRadius: 3.5)
@@ -312,20 +366,22 @@ final class DividerView: NSView {
             let dot: NSRect
             switch orientation {
             case .vertical:
-                dot = NSRect(x: bounds.midX - 1, y: bounds.midY + offset - 1, width: 2, height: 2)
+                dot = NSRect(x: grip.midX - 1, y: grip.midY + offset - 1, width: 2, height: 2)
             case .horizontal:
-                dot = NSRect(x: bounds.midX + offset - 1, y: bounds.midY - 1, width: 2, height: 2)
+                dot = NSRect(x: grip.midX + offset - 1, y: grip.midY - 1, width: 2, height: 2)
             }
             NSBezierPath(ovalIn: dot).fill()
         }
     }
 
     override func mouseDown(with event: NSEvent) {
+        pointerLocation = convert(event.locationInWindow, from: nil)
         dragging = true
         onDragBegan?()
     }
 
     override func mouseDragged(with event: NSEvent) {
+        pointerLocation = convert(event.locationInWindow, from: nil)
         onDrag?(NSEvent.mouseLocation)
     }
 
@@ -350,12 +406,16 @@ final class DividerView: NSView {
         hovered = false
     }
 
+    override func mouseMoved(with event: NSEvent) {
+        pointerLocation = convert(event.locationInWindow, from: nil)
+    }
+
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let trackingArea { removeTrackingArea(trackingArea) }
         let area = NSTrackingArea(
             rect: bounds,
-            options: [.mouseEnteredAndExited, .activeAlways],
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways],
             owner: self,
             userInfo: nil
         )
